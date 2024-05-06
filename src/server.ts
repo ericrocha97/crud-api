@@ -16,6 +16,8 @@ import { createUser } from './routes/user/create-user'
 import { loginUser } from './routes/auth/login-user'
 import { refreshToken } from './routes/auth/refresh-token'
 import { userInfo } from './routes/auth/user-info'
+import { createTask } from './routes/task/create-task'
+import { updateTask } from './routes/task/update-task'
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -52,12 +54,17 @@ app.register(fastifySwaggerUI, {
 app.setValidatorCompiler(validatorCompiler)
 app.setSerializerCompiler(serializerCompiler)
 
+//user
 app.register(createUser)
-app.register(loginUser)
 
 //auth
+app.register(loginUser)
 app.register(refreshToken)
 app.register(userInfo)
+
+//task
+app.register(createTask)
+app.register(updateTask)
 
 app.setErrorHandler(errorHandler)
 

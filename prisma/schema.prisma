@@ -20,5 +20,31 @@ model User {
   email     String @unique
   password  String
 
+  assignedTasks Task[]
+
   @@map("users")
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      TaskStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  createdBy String
+  updatedBy String?
+
+  assignee   User? @relation(fields: [assigneeId], references: [id])
+  assigneeId Int?  @map("assignee_id")
+
+  @@map("task")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
 }
