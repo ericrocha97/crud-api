@@ -1,29 +1,32 @@
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { FastifyInstance } from 'fastify'
-import { CreateTaskSchema, ResponseTaskSchema } from '../../models/task'
+import { ResponseListTaskSchema } from '../../models/task'
 import { prisma } from '../../lib/prisma'
 import { authenticate } from '../../middleware/auth'
 
-export async function createTask(app: FastifyInstance) {
-    app.withTypeProvider<ZodTypeProvider>().post(
-        '/task',
+export async function listTask(app: FastifyInstance) {
+    app.withTypeProvider<ZodTypeProvider>().get(
+        '/tasks',
         {
             schema: {
-                summary: 'Create a task',
+                summary: 'Get task list',
                 tags: ['task'],
-                body: CreateTaskSchema,
+                querystring: z.object({
+                    boardId: z.string(),
+                    createDateFrom: z.string().optional(),
+                    createDateTo: z.string().optional(),
+                    dueDateFrom: z.string().optional(),
+                    dueDateTo: z.string().optional(),
+                    assigneeTo: z.string().email().optional(),
+                }),
                 response: {
-                    201: ResponseTaskSchema,
+                    200: ResponseListTaskSchema,
                     400: z.object({
                         message: z.string(),
                         errors: z
                             .object({
-                                title: z.array(z.string()).optional(),
-                                description: z.array(z.string()).optional(),
-                                dueDate: z.array(z.string()).optional(),
-                                assigneeId: z.array(z.string()).optional(),
-                                boardId: z.array(z.string()).optional(),
+                                taskId: z.array(z.string()).optional(),
                             })
                             .optional(),
                     }),
@@ -39,26 +42,29 @@ export async function createTask(app: FastifyInstance) {
         },
         async (request, reply) => {
             const {
-                title,
-                description,
-                dueDate: dueDateBody,
-                assigneeId,
                 boardId,
-            } = request.body
+                assigneeTo,
+                createDateFrom,
+                createDateTo,
+                dueDateFrom,
+                dueDateTo,
+            } = request.query
+            await authenticate(request.headers.authorization)
 
-            const requestUser = await authenticate(
-                request.headers.authorization
-            )
-
-            const dueDate = dueDateBody ? new Date(dueDateBody) : undefined
-            const task = await prisma.task.create({
-                data: {
-                    title,
-                    description,
-                    dueDate,
-                    createdBy: requestUser.email,
-                    assigneeId,
-                    boardId,
+            const tasks = await prisma.task.findMany({
+                where: {
+                    boardId: parseInt(boardId),
+                    createdAt: {
+                        gte: createDateFrom,
+                        lte: createDateTo,
+                    },
+                    dueDate: {
+                        gte: dueDateFrom,
+                        lte: dueDateTo,
+                    },
+                    assignee: {
+                        email: assigneeTo,
+                    },
                 },
                 select: {
                     id: true,
@@ -84,9 +90,12 @@ export async function createTask(app: FastifyInstance) {
                         },
                     },
                 },
+                orderBy: {
+                    createdAt: 'asc',
+                },
             })
 
-            return reply.status(201).send(task)
+            return reply.status(200).send(tasks)
         }
     )
 }

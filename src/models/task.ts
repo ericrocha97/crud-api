@@ -6,6 +6,7 @@ export const CreateTaskSchema = z.object({
     description: z.string().optional(),
     dueDate: z.string().optional(),
     assigneeId: z.number().optional(),
+    boardId: z.number(),
 })
 
 enum TaskStatus {
@@ -20,6 +21,7 @@ export const UpdateTaskSchema = z.object({
     dueDate: z.string().optional(),
     assigneeId: z.number().optional(),
     status: z.nativeEnum(TaskStatus).optional(),
+    boardId: z.number().optional(),
 })
 
 export const ResponseTaskSchema = z.object({
@@ -29,8 +31,22 @@ export const ResponseTaskSchema = z.object({
     dueDate: z.date().nullable(),
     status: z.nativeEnum(PrismaTaskStatus),
     createdAt: z.date(),
-    updatedAt: z.date(),
+    updatedAt: z.date().nullable(),
     createdBy: z.string(),
     updatedBy: z.string().nullable(),
-    assigneeId: z.number().nullable(),
+    assignee: z
+        .object({
+            email: z.string(),
+            firstName: z.string(),
+            lastName: z.string(),
+        })
+        .nullable(),
+    board: z
+        .object({
+            id: z.number(),
+            name: z.string(),
+        })
+        .nullable(),
 })
+
+export const ResponseListTaskSchema = z.array(ResponseTaskSchema)

@@ -1,29 +1,28 @@
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { FastifyInstance } from 'fastify'
-import { CreateTaskSchema, ResponseTaskSchema } from '../../models/task'
+import { ResponseTaskSchema } from '../../models/task'
 import { prisma } from '../../lib/prisma'
 import { authenticate } from '../../middleware/auth'
+import { BadRequest } from '../_errors/bad-request'
 
-export async function createTask(app: FastifyInstance) {
-    app.withTypeProvider<ZodTypeProvider>().post(
-        '/task',
+export async function getTask(app: FastifyInstance) {
+    app.withTypeProvider<ZodTypeProvider>().get(
+        '/task/:taskId',
         {
             schema: {
-                summary: 'Create a task',
+                summary: 'Get a task',
                 tags: ['task'],
-                body: CreateTaskSchema,
+                params: z.object({
+                    taskId: z.string(),
+                }),
                 response: {
-                    201: ResponseTaskSchema,
+                    200: ResponseTaskSchema,
                     400: z.object({
                         message: z.string(),
                         errors: z
                             .object({
-                                title: z.array(z.string()).optional(),
-                                description: z.array(z.string()).optional(),
-                                dueDate: z.array(z.string()).optional(),
-                                assigneeId: z.array(z.string()).optional(),
-                                boardId: z.array(z.string()).optional(),
+                                taskId: z.array(z.string()).optional(),
                             })
                             .optional(),
                     }),
@@ -38,28 +37,12 @@ export async function createTask(app: FastifyInstance) {
             },
         },
         async (request, reply) => {
-            const {
-                title,
-                description,
-                dueDate: dueDateBody,
-                assigneeId,
-                boardId,
-            } = request.body
+            const { taskId } = request.params
 
-            const requestUser = await authenticate(
-                request.headers.authorization
-            )
+            await authenticate(request.headers.authorization)
 
-            const dueDate = dueDateBody ? new Date(dueDateBody) : undefined
-            const task = await prisma.task.create({
-                data: {
-                    title,
-                    description,
-                    dueDate,
-                    createdBy: requestUser.email,
-                    assigneeId,
-                    boardId,
-                },
+            const task = await prisma.task.findUnique({
+                where: { id: parseInt(taskId) },
                 select: {
                     id: true,
                     title: true,
@@ -85,8 +68,11 @@ export async function createTask(app: FastifyInstance) {
                     },
                 },
             })
+            if (!task) {
+                throw new BadRequest(`Task not found with ${taskId}`)
+            }
 
-            return reply.status(201).send(task)
+            return reply.status(200).send(task)
         }
     )
 }

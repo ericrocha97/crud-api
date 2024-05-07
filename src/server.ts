@@ -18,6 +18,9 @@ import { refreshToken } from './routes/auth/refresh-token'
 import { userInfo } from './routes/auth/user-info'
 import { createTask } from './routes/task/create-task'
 import { updateTask } from './routes/task/update-task'
+import { getTask } from './routes/task/get-task'
+import { listTask } from './routes/task/list-tasks'
+import { deleteTask } from './routes/task/delete-task'
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -65,6 +68,9 @@ app.register(userInfo)
 //task
 app.register(createTask)
 app.register(updateTask)
+app.register(getTask)
+app.register(listTask)
+app.register(deleteTask)
 
 app.setErrorHandler(errorHandler)
 

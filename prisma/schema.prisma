@@ -40,6 +40,9 @@ model Task {
   assignee   User? @relation(fields: [assigneeId], references: [id])
   assigneeId Int?  @map("assignee_id")
 
+  board   Board? @relation(fields: [boardId], references: [id])
+  boardId Int?   @map("board_id")
+
   @@map("task")
 }
 
@@ -47,4 +50,12 @@ enum TaskStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
+}
+
+model Board {
+  id    Int    @id @default(autoincrement())
+  name  String
+  tasks Task[]
+
+  @@map("board")
 }

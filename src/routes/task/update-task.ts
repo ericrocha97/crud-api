@@ -30,6 +30,7 @@ export async function updateTask(app: FastifyInstance) {
                                 dueDate: z.array(z.string()).optional(),
                                 assigneeId: z.array(z.string()).optional(),
                                 status: z.array(z.string()).optional(),
+                                boardId: z.array(z.string()).optional(),
                             })
                             .optional(),
                     }),
@@ -51,6 +52,7 @@ export async function updateTask(app: FastifyInstance) {
                 dueDate: dueDateBody,
                 assigneeId,
                 status,
+                boardId,
             } = request.body
 
             const requestUser = await authenticate(
@@ -92,6 +94,31 @@ export async function updateTask(app: FastifyInstance) {
                     updatedBy: requestUser.email,
                     assigneeId,
                     status: mappedStatus,
+                    boardId,
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    dueDate: true,
+                    status: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    createdBy: true,
+                    updatedBy: true,
+                    assignee: {
+                        select: {
+                            email: true,
+                            firstName: true,
+                            lastName: true,
+                        },
+                    },
+                    board: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
                 },
             })
 
