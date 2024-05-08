@@ -5,15 +5,15 @@ import { prisma } from '../../lib/prisma'
 import { authenticate } from '../../middleware/auth'
 import { BadRequest } from '../_errors/bad-request'
 
-export async function deleteTask(app: FastifyInstance) {
+export async function deleteBoard(app: FastifyInstance) {
     app.withTypeProvider<ZodTypeProvider>().delete(
-        '/task/:taskId',
+        '/board/:boardId',
         {
             schema: {
-                summary: 'Delete a task',
-                tags: ['task'],
+                summary: 'Delete a board',
+                tags: ['board'],
                 params: z.object({
-                    taskId: z.string(),
+                    boardId: z.string(),
                 }),
                 response: {
                     202: z.object({}),
@@ -21,7 +21,7 @@ export async function deleteTask(app: FastifyInstance) {
                         message: z.string(),
                         errors: z
                             .object({
-                                taskId: z.array(z.string()).optional(),
+                                boardId: z.array(z.string()).optional(),
                             })
                             .optional(),
                     }),
@@ -36,27 +36,27 @@ export async function deleteTask(app: FastifyInstance) {
             },
         },
         async (request, reply) => {
-            const { taskId } = request.params
+            const { boardId } = request.params
 
-            console.log('Deleting task...')
-            console.log(`With params: (taskId: ${taskId})`)
+            console.log('Deleting board...')
+            console.log(`With params: (boardId: ${boardId})`)
 
             await authenticate(request.headers.authorization)
 
-            const existingTask = await prisma.task.findUnique({
-                where: { id: parseInt(taskId) },
+            const existingBoard = await prisma.board.findUnique({
+                where: { id: parseInt(boardId) },
             })
-            if (!existingTask) {
-                throw new BadRequest(`Task not found with ${taskId}`)
+            if (!existingBoard) {
+                throw new BadRequest(`Board not found with ${boardId}`)
             }
 
-            await prisma.task.delete({
+            await prisma.board.delete({
                 where: {
-                    id: parseInt(taskId),
+                    id: parseInt(boardId),
                 },
             })
 
-            console.log('Task deleted successfully.')
+            console.log('Board deleted successfully.')
 
             return reply.status(202).send()
         }

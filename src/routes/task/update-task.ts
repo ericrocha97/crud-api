@@ -55,6 +55,12 @@ export async function updateTask(app: FastifyInstance) {
                 boardId,
             } = request.body
 
+            console.log('Updating task...')
+            console.log(`With params: (taskId: ${taskId})`)
+            console.log(
+                `With body: (title: ${title}, description: ${description}, dueDate: ${dueDateBody}, assigneeId: ${assigneeId}, status: ${status}, boardId: ${boardId})`
+            )
+
             const requestUser = await authenticate(
                 request.headers.authorization
             )
@@ -121,6 +127,8 @@ export async function updateTask(app: FastifyInstance) {
                     },
                 },
             })
+
+            console.log('Task updated successfully.')
 
             return reply.status(200).send(updatedTask)
         }

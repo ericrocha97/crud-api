@@ -21,6 +21,11 @@ import { updateTask } from './routes/task/update-task'
 import { getTask } from './routes/task/get-task'
 import { listTask } from './routes/task/list-tasks'
 import { deleteTask } from './routes/task/delete-task'
+import { createBoard } from './routes/board/create-board'
+import { updateBoard } from './routes/board/update-board'
+import { getBoard } from './routes/board/get-board'
+import { listBoard } from './routes/board/list-board'
+import { deleteBoard } from './routes/board/delete-board'
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -71,6 +76,13 @@ app.register(updateTask)
 app.register(getTask)
 app.register(listTask)
 app.register(deleteTask)
+
+//board
+app.register(createBoard)
+app.register(updateBoard)
+app.register(getBoard)
+app.register(listBoard)
+app.register(deleteBoard)
 
 app.setErrorHandler(errorHandler)
 

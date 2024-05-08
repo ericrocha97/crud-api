@@ -46,6 +46,11 @@ export async function createTask(app: FastifyInstance) {
                 boardId,
             } = request.body
 
+            console.log('Creating a new task...')
+            console.log(
+                `With body:  (title: ${title}, description: ${description}, dueDate: ${dueDateBody}, assigneeId: ${assigneeId}, boardId: ${boardId})`
+            )
+
             const requestUser = await authenticate(
                 request.headers.authorization
             )
@@ -85,6 +90,8 @@ export async function createTask(app: FastifyInstance) {
                     },
                 },
             })
+
+            console.log('Task created successfully.')
 
             return reply.status(201).send(task)
         }

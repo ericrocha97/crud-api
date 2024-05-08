@@ -34,6 +34,8 @@ export async function refreshToken(app: FastifyInstance) {
 
             const newAccessToken = generateToken(requestUser)
 
+            console.log('Refreshing access token...')
+
             return reply.status(201).send(newAccessToken)
         }
     )

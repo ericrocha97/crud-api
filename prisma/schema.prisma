@@ -53,9 +53,14 @@ enum TaskStatus {
 }
 
 model Board {
-  id    Int    @id @default(autoincrement())
-  name  String
-  tasks Task[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy String
+  updatedBy String?
+  tasks     Task[]
 
   @@map("board")
 }

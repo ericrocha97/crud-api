@@ -28,6 +28,8 @@ export async function userInfo(app: FastifyInstance) {
                 request.headers.authorization
             )
 
+            console.log('User Info for:', requestUser.email)
+
             return reply.status(200).send({
                 firstName: requestUser.firstName,
                 lastName: requestUser.lastName,

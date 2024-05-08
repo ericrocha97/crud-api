@@ -26,7 +26,12 @@ export async function listTask(app: FastifyInstance) {
                         message: z.string(),
                         errors: z
                             .object({
-                                taskId: z.array(z.string()).optional(),
+                                boardId: z.array(z.string()).optional(),
+                                createDateFrom: z.array(z.string()).optional(),
+                                createDateTo: z.array(z.string()).optional(),
+                                dueDateFrom: z.array(z.string()).optional(),
+                                dueDateTo: z.array(z.string()).optional(),
+                                assigneeTo: z.array(z.string()).optional(),
                             })
                             .optional(),
                     }),
@@ -49,6 +54,12 @@ export async function listTask(app: FastifyInstance) {
                 dueDateFrom,
                 dueDateTo,
             } = request.query
+
+            console.log('Retrieving task list...')
+            console.log(
+                `With query parameters: (boardId: ${boardId}, assigneeTo: ${assigneeTo}, createDateFrom: ${createDateFrom}, createDateTo: ${createDateTo}, dueDateFrom: ${dueDateFrom}, dueDateTo: ${dueDateTo})`
+            )
+
             await authenticate(request.headers.authorization)
 
             const tasks = await prisma.task.findMany({

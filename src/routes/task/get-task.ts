@@ -39,6 +39,9 @@ export async function getTask(app: FastifyInstance) {
         async (request, reply) => {
             const { taskId } = request.params
 
+            console.log('Get details for task...')
+            console.log(`With params:  (taskId: ${taskId})`)
+
             await authenticate(request.headers.authorization)
 
             const task = await prisma.task.findUnique({

@@ -41,6 +41,8 @@ export async function loginUser(app: FastifyInstance) {
         async (request, reply) => {
             const { email, password } = request.body
 
+            console.log('Trying to log in the user...')
+
             const user = await prisma.user.findUnique({
                 where: { email },
             })
@@ -49,7 +51,14 @@ export async function loginUser(app: FastifyInstance) {
                 throw new Unauthorized('Invalid email or password')
             }
 
-            const token = generateToken(user)
+            const token = generateToken({
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            })
+
+            console.log('Login successfully.')
 
             return reply.status(201).send(token)
         }
